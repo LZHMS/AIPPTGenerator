@@ -1,0 +1,373 @@
+/* AI PPT Generator - 样式文件 */
+
+:root {
+    --primary-color: #2E86AB;
+    --secondary-color: #A23B72;
+    --accent-color: #F18F01;
+    --bg-color: #f8f9fa;
+    --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+}
+
+body {
+    background-color: var(--bg-color);
+    min-height: 100vh;
+}
+
+/* 导航栏 */
+.navbar {
+    box-shadow: var(--card-shadow);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.3rem;
+}
+
+/* 卡片样式 */
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.card-header {
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+/* 主题选择器 */
+.theme-selector {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.theme-option {
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    padding: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.theme-option:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+}
+
+.theme-option.selected {
+    border-color: var(--primary-color);
+    background-color: rgba(46, 134, 171, 0.1);
+}
+
+.theme-option .color-preview {
+    display: flex;
+    gap: 3px;
+    margin-bottom: 5px;
+    justify-content: center;
+}
+
+.theme-option .color-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.theme-option .theme-name {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* 进度条 */
+.progress-container {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+}
+
+.progress {
+    height: 8px;
+    border-radius: 4px;
+}
+
+.progress-log {
+    max-height: 150px;
+    overflow-y: auto;
+    font-size: 0.85rem;
+}
+
+.log-item {
+    padding: 5px 10px;
+    border-radius: 4px;
+    margin-bottom: 5px;
+    background: white;
+    border-left: 3px solid var(--primary-color);
+}
+
+.log-item.success {
+    border-left-color: #28a745;
+}
+
+.log-item.error {
+    border-left-color: #dc3545;
+}
+
+/* 预览区域 */
+.preview-container {
+    min-height: 500px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    border-radius: 0 0 12px 12px;
+}
+
+.preview-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 500px;
+}
+
+.placeholder-content {
+    text-align: center;
+}
+
+/* PPT预览 */
+.ppt-preview {
+    padding: 20px;
+}
+
+.slides-container {
+    background: white;
+    border-radius: 8px;
+    box-shadow: var(--card-shadow);
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    position: relative;
+}
+
+.slide {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 30px;
+}
+
+.slide.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* 幻灯片类型样式 */
+.slide-title {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+}
+
+.slide-title h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.slide-title .subtitle {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.slide-content h2 {
+    font-size: 1.8rem;
+    color: var(--primary-color);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.slide-content ul {
+    list-style: none;
+    padding: 0;
+}
+
+.slide-content li {
+    padding: 10px 0 10px 30px;
+    position: relative;
+    font-size: 1.1rem;
+}
+
+.slide-content li::before {
+    content: "•";
+    color: var(--accent-color);
+    font-size: 1.5rem;
+    position: absolute;
+    left: 0;
+    top: 8px;
+}
+
+.slide-summary {
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    color: white;
+}
+
+.slide-summary h2 {
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    border-bottom: none;
+}
+
+.slide-summary .summary-points {
+    font-size: 1.1rem;
+}
+
+/* 幻灯片导航 */
+.slide-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#slideIndicator {
+    font-weight: 500;
+}
+
+/* 工作流图 */
+.workflow-diagram {
+    min-height: 200px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    overflow: auto;
+}
+
+.workflow-diagram svg {
+    max-width: 100%;
+    height: auto;
+}
+
+/* 配色方案预览 */
+.color-scheme-preview {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.color-block {
+    width: 30px;
+    height: 30px;
+    border-radius: 4px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    cursor: help;
+}
+
+/* 大纲列表 */
+.outline-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.outline-list li {
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    margin-bottom: 6px;
+    font-size: 0.95rem;
+}
+
+.outline-list li .slide-num {
+    display: inline-block;
+    width: 24px;
+    height: 24px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 24px;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+/* 加载动画 */
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* 生成按钮动画 */
+#generateBtn {
+    transition: all 0.3s ease;
+}
+
+#generateBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(46, 134, 171, 0.4);
+}
+
+#generateBtn:disabled {
+    transform: none;
+    box-shadow: none;
+}
+
+/* 下载按钮 */
+#downloadBtn {
+    transition: all 0.3s ease;
+}
+
+#downloadBtn:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .theme-selector {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .slide-title h1 {
+        font-size: 1.8rem;
+    }
+    
+    .slide-content h2 {
+        font-size: 1.4rem;
+    }
+    
+    .slide-content li {
+        font-size: 0.95rem;
+    }
+}
+
+/* 页脚 */
+.footer {
+    margin-top: auto;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}
