@@ -1,13 +1,24 @@
+---
+title: AI PPT Generator
+emoji: 📊
+colorFrom: blue
+colorTo: purple
+sdk: docker
+pinned: false
+license: mit
+app_port: 7860
+---
+
 # AI PPT Generator - 智能PPT生成器
 
-一个基于 LangGraph 的 AI 驱动的 PPT 自动生成工具，支持在线搜索资源、多种主题风格，并提供网页端交互界面。
+一个基于 LangGraph 的 AI 驱动的 PPT 自动生成工具，支持多种主题风格，并提供网页端交互界面。
 
 ## 功能特点
 
 - 🎯 **智能主题生成**: 根据输入主题自动生成合适的 PPT 风格
 - 🎨 **多种配色方案**: 支持商务蓝、科技紫、自然绿等6种预设主题
-- 🔍 **在线资源搜索**: 使用 Tavily API 搜索相关资料
-- 📊 **智能布局设计**: AI 自动设计幻灯片布局
+- 🤖 **AI 内容生成**: 使用 LLM 直接生成高质量内容（无需额外搜索 API）
+- 📊 **智能布局设计**: AI 自动设计幻灯片布局（15种布局类型）
 - 🌐 **Web 界面**: 简洁易用的网页端操作界面
 - 📥 **一键下载**: 生成的 PPT 可直接下载
 
@@ -128,79 +139,67 @@ ppt_generator/
 
 ## API 配置
 
-### 方式一：环境变量（推荐）
+只需要一个 API Key！
 
-创建 `.env` 文件或设置系统环境变量：
+### 环境变量配置
 
 ```bash
-# Moonshot AI API
+# Moonshot AI API（必需）
 MOONSHOT_API_KEY=your-moonshot-api-key
-
-# Tavily Search API
-TAVILY_API_KEY=your-tavily-api-key
 
 # 可选：自定义模型配置
 LLM_MODEL_ID=kimi-k2-thinking-turbo
 LLM_BASE_URL=https://api.moonshot.cn/v1
 ```
 
-### 方式二：直接修改代码
+获取 API Key：https://platform.moonshot.cn/
 
-编辑 `core/ppt_agent.py` 中的配置：
+## 部署到 Hugging Face Spaces
 
-```python
-LLM_CONFIG = {
-    "api_key": "your-api-key",
-    "model_id": "your-model-id",
-    "base_url": "your-api-base-url"
-}
-TAVILY_API_KEY = "your-tavily-api-key"
+### 步骤 1：创建 Space
+
+1. 访问 https://huggingface.co/spaces
+2. 点击 **Create new Space**
+3. 填写：
+   - **Space name**: `ai-ppt-generator`
+   - **SDK**: 选择 **Docker**
+4. 点击 **Create Space**
+
+### 步骤 2：配置 Secrets
+
+1. 进入 Space 的 **Settings** 页面
+2. 找到 **Repository secrets**
+3. 添加：`MOONSHOT_API_KEY` = 你的 API Key
+
+### 步骤 3：上传代码
+
+**方式一：Git 推送**
+```bash
+git remote add hf https://huggingface.co/spaces/你的用户名/ai-ppt-generator
+git push hf main
 ```
 
-## 部署指南
+**方式二：网页上传**
+- 在 Space 的 **Files** 页面直接上传所有文件
 
-### 本地运行
+### 步骤 4：等待构建
+
+Hugging Face 会自动构建 Docker 镜像并部署，约 3-5 分钟完成。
+
+## 本地运行
 
 ```bash
+# 设置环境变量
+export MOONSHOT_API_KEY=your-api-key
+
 # 安装依赖
 pip install -r requirements.txt
 
 # 启动应用
 python run.py
-# 或
-python -m web.app
 ```
 
-### 部署到 Vercel（推荐）
-
-1. **Fork 或克隆项目到你的 GitHub**
-
-2. **在 Vercel 中导入项目**
-   - 访问 [vercel.com](https://vercel.com)
-   - 点击 "New Project"
-   - 选择你的 GitHub 仓库
-
-3. **配置环境变量**
-   在 Vercel 项目设置中添加：
-   - `MOONSHOT_API_KEY`: 你的 Moonshot API Key
-   - `TAVILY_API_KEY`: 你的 Tavily API Key
-
-4. **部署**
-   Vercel 会自动构建和部署
-
-### 部署到 Render
-
-1. 在 [render.com](https://render.com) 创建 Web Service
-2. 连接 GitHub 仓库
-3. 设置启动命令：`gunicorn web.app:app`
-4. 添加环境变量
-5. 部署
-
-### 部署到 Hugging Face Spaces
-
-1. 创建新的 Space，选择 Gradio 或 Docker
-2. 上传代码
-3. 配置 Secrets（环境变量）
+访问：http://127.0.0.1:5000
 
 ## 技术栈
 
@@ -209,14 +208,12 @@ python -m web.app
 - **python-pptx**: PPT 文件生成
 - **Flask**: Web 框架
 - **Bootstrap 5**: 前端UI
-- **Mermaid**: 工作流图可视化
 
 ## 注意事项
 
 1. 首次运行需要联网下载依赖
-2. 生成 PPT 需要调用 LLM API，请确保 API 配置正确
-3. 搜索功能需要 Tavily API Key
-4. 生成的 PPT 文件保存在 `web/output/` 目录
+2. 生成 PPT 需要调用 LLM API，请确保 API Key 配置正确
+3. 生成的 PPT 文件保存在 `web/output/` 目录
 
 ## License
 

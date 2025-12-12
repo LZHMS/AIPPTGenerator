@@ -1,8 +1,8 @@
 # AI PPT Generator Dependencies
+
 # 核心依赖
 langchain-openai>=0.1.0
 langgraph>=0.0.20
-langchain-community>=0.0.20
 
 # PPT生成
 python-pptx>=0.6.21
@@ -11,13 +11,7 @@ python-pptx>=0.6.21
 flask>=3.0.0
 flask-cors>=4.0.0
 
-# 搜索工具
-tavily-python>=0.3.0
-
 # 工具库
-python-dotenv>=1.0.0
 pillow>=10.0.0
-ipython>=8.0.0
-
-# 其他
 requests>=2.31.0
+gunicorn>=21.0.0

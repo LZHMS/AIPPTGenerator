@@ -6,20 +6,16 @@ AI PPT Generator - Core Agent Module
 from typing import TypedDict, List, Dict, Any, Optional, Annotated
 from langgraph.graph import StateGraph, START, END
 from langchain_openai import ChatOpenAI
-from langchain_community.tools.tavily_search import TavilySearchResults
 import json
 import os
 
 
 # LLM 配置 - 优先从环境变量读取
 LLM_CONFIG = {
-    "api_key": os.environ.get("MOONSHOT_API_KEY", "your-default-api-key"),
+    "api_key": os.environ.get("MOONSHOT_API_KEY", "your-api-key-here"),
     "model_id": os.environ.get("LLM_MODEL_ID", "kimi-k2-thinking-turbo"),
     "base_url": os.environ.get("LLM_BASE_URL", "https://api.moonshot.cn/v1")
 }
-
-# Tavily 搜索配置 - 优先从环境变量读取
-TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "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")
 
 
 def get_llm():
@@ -30,11 +26,6 @@ def get_llm():
         base_url=LLM_CONFIG["base_url"],
         streaming=False,
     )
-
-
-def get_search_tool():
-    """获取搜索工具"""
-    return TavilySearchResults(max_results=5, tavily_api_key=TAVILY_API_KEY)
 
 
 def merge_status(left: str, right: str) -> str:
@@ -161,56 +152,59 @@ def generate_default_outline(topic: str, num_slides: int) -> List[Dict]:
 
 # 节点函数
 def search_resources(state: PPTState) -> Dict:
-    """搜索相关资源节点"""
+    """使用 LLM 生成相关资料（无需外部搜索 API）"""
     topic = state["topic"]
     num_slides = state.get("num_slides", 6)
-    search_tool = get_search_tool()
-    
-    # 根据页数决定搜索数量
-    max_results = min(max(num_slides, 5), 10)
+    llm = get_llm()
     
     try:
-        # 多维度搜索
-        search_queries = [
-            f"{topic} 详细介绍",
-            f"{topic} 最新发展 趋势",
-            f"{topic} 应用案例 实例",
-        ]
+        # 使用 LLM 生成关于主题的详细资料
+        prompt = f"""作为一个知识专家，请为以下主题生成详细的背景资料和信息，用于制作一个 {num_slides} 页的 PPT。
+
+主题：{topic}
+
+请生成 {min(num_slides, 8)} 条相关资料，每条资料包含一个关键点。
+以 JSON 数组格式返回，每个元素包含：
+- "title": 资料标题/关键点名称
+- "content": 详细内容描述（100-200字）
+- "category": 类别（如：概述、特点、应用、趋势、案例等）
+
+只返回 JSON 数组，不要其他内容。"""
+
+        response = llm.invoke(prompt)
+        content = response.content.strip()
         
-        all_results = []
-        search_tool = TavilySearchResults(max_results=max_results, tavily_api_key=TAVILY_API_KEY)
+        # 提取 JSON
+        if "```json" in content:
+            content = content.split("```json")[1].split("```")[0].strip()
+        elif "```" in content:
+            content = content.split("```")[1].split("```")[0].strip()
         
-        for query in search_queries[:max(1, num_slides // 3)]:
-            try:
-                results = search_tool.invoke(query)
-                if isinstance(results, list):
-                    for r in results:
-                        if isinstance(r, dict):
-                            all_results.append({
-                                "title": r.get("title", ""),
-                                "content": r.get("content", ""),
-                                "url": r.get("url", "")
-                            })
-            except:
-                continue
+        results = json.loads(content)
         
-        # 去重
-        seen_urls = set()
+        # 标准化格式
         parsed_results = []
-        for r in all_results:
-            if r["url"] not in seen_urls:
-                seen_urls.add(r["url"])
-                parsed_results.append(r)
+        for r in results:
+            parsed_results.append({
+                "title": r.get("title", ""),
+                "content": r.get("content", ""),
+                "category": r.get("category", "概述")
+            })
         
         return {
-            "search_results": parsed_results[:max_results],
-            "status": f"资源搜索完成（找到{len(parsed_results)}条）"
+            "search_results": parsed_results,
+            "status": f"资料生成完成（{len(parsed_results)}条）"
         }
     except Exception as e:
+        # 返回基础资料
         return {
-            "search_results": [],
-            "status": "资源搜索完成（离线模式）",
-            "error": str(e)
+            "search_results": [
+                {"title": f"{topic}概述", "content": f"关于{topic}的基础介绍", "category": "概述"},
+                {"title": "核心特点", "content": f"{topic}的主要特点和优势", "category": "特点"},
+                {"title": "应用场景", "content": f"{topic}的典型应用场景", "category": "应用"},
+                {"title": "发展趋势", "content": f"{topic}的未来发展方向", "category": "趋势"},
+            ],
+            "status": "资料生成完成（基础模式）"
         }
 
 
