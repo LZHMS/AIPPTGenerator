@@ -84,7 +84,23 @@ document.addEventListener('DOMContentLoaded', function() {
     initThemeSelector();
     initEventListeners();
     loadWorkflowDiagram();
+    loadLLMInfo();
 });
+
+/**
+ * 加载 LLM 信息
+ */
+async function loadLLMInfo() {
+    try {
+        const response = await fetch('/api/llm-info');
+        const data = await response.json();
+        const modelName = data.model_id || 'Unknown Model';
+        document.getElementById('llmModelName').textContent = `Model: ${modelName}`;
+    } catch (error) {
+        console.error('Failed to load LLM info:', error);
+        document.getElementById('llmModelName').textContent = 'Powered by LangGraph';
+    }
+}
 
 /**
  * 初始化主题选择器

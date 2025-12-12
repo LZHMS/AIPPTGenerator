@@ -15,7 +15,7 @@ from datetime import datetime
 # 添加父目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.ppt_agent import generate_ppt_data, generate_ppt_data_stream, build_ppt_workflow
+from core.ppt_agent import generate_ppt_data, generate_ppt_data_stream, build_ppt_workflow, LLM_CONFIG
 from core.ppt_builder import create_ppt_from_data, THEME_PRESETS, apply_theme_preset
 
 app = Flask(__name__, 
@@ -32,6 +32,15 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 def index():
     """主页"""
     return render_template('index.html', themes=THEME_PRESETS)
+
+
+@app.route('/api/llm-info', methods=['GET'])
+def get_llm_info():
+    """获取当前 LLM 配置信息"""
+    return jsonify({
+        "model_id": LLM_CONFIG.get("model_id", "unknown"),
+        "base_url": LLM_CONFIG.get("base_url", "unknown")
+    })
 
 
 @app.route('/api/themes', methods=['GET'])
