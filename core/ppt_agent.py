@@ -25,6 +25,8 @@ def get_llm():
         api_key=LLM_CONFIG["api_key"],
         base_url=LLM_CONFIG["base_url"],
         streaming=False,
+        timeout=120,  # 设置超时时间
+        max_retries=2,  # 设置重试次数
     )
 
 

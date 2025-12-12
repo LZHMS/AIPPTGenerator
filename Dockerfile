@@ -23,5 +23,5 @@ RUN mkdir -p /app/web/output
 # 暴露端口 (Hugging Face Spaces 使用 7860)
 EXPOSE 7860
 
-# 启动命令
-CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--timeout", "120", "web.app:app"]
+# 启动命令 - 增加超时时间，使用 gevent worker 支持长连接
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "2", "--timeout", "300", "--keep-alive", "75", "web.app:app"]

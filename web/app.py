@@ -117,6 +117,7 @@ def generate_ppt_stream():
             yield f"data: {json.dumps({'type': 'start', 'message': '开始生成PPT...'})}\n\n"
             
             final_ppt_data = None
+            last_heartbeat = time.time()
             
             # 流式生成
             for step, status, node_output in generate_ppt_data_stream(topic, num_slides=num_slides):
@@ -131,6 +132,12 @@ def generate_ppt_stream():
                 # 获取最终数据
                 if 'ppt_data' in node_output and node_output['ppt_data']:
                     final_ppt_data = node_output['ppt_data']
+                
+                # 发送心跳保持连接
+                current_time = time.time()
+                if current_time - last_heartbeat > 15:
+                    yield f"data: {json.dumps({'type': 'heartbeat', 'message': '处理中...'})}\n\n"
+                    last_heartbeat = current_time
                 
                 time.sleep(0.1)  # 小延迟以便前端能看到进度
             
@@ -166,7 +173,10 @@ def generate_ppt_stream():
             }
             yield f"data: {json.dumps(error_data, ensure_ascii=False)}\n\n"
     
-    return Response(generate(), mimetype='text/event-stream')
+    response = Response(generate(), mimetype='text/event-stream')
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['X-Accel-Buffering'] = 'no'  # 禁用 Nginx 缓冲
+    return response
 
 
 @app.route('/api/download/<filename>')

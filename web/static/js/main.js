@@ -202,10 +202,14 @@ async function generatePPT() {
     btn.disabled = true;
     btn.innerHTML = '<i class="bi bi-hourglass-split me-2 spin"></i>生成中...';
     
+    // 设置超时控制器
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => {
+        controller.abort();
+        addLogItem('请求超时，请重试或减少页数', 'error');
+    }, 300000); // 5分钟超时
+    
     try {
-        // 使用SSE接收进度
-        const eventSource = new EventSource(`/api/generate/stream?topic=${encodeURIComponent(topic)}&theme=${selectedTheme}`);
-        
         // 使用fetch + POST方式
         const response = await fetch('/api/generate/stream', {
             method: 'POST',
@@ -216,17 +220,31 @@ async function generatePPT() {
                 topic: topic,
                 theme: selectedTheme,
                 num_slides: numSlides
-            })
+            }),
+            signal: controller.signal
         });
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
         
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = '';
+        let lastActivityTime = Date.now();
+        
+        // 心跳检测 - 如果60秒没有数据，显示警告
+        const heartbeatCheck = setInterval(() => {
+            if (Date.now() - lastActivityTime > 60000) {
+                addLogItem('正在等待服务器响应...', 'warning');
+            }
+        }, 30000);
         
         while (true) {
             const { done, value } = await reader.read();
             if (done) break;
             
+            lastActivityTime = Date.now();
             buffer += decoder.decode(value, { stream: true });
             
             // 处理SSE数据
@@ -245,10 +263,18 @@ async function generatePPT() {
             }
         }
         
+        clearInterval(heartbeatCheck);
+        clearTimeout(timeoutId);
+        
     } catch (error) {
         console.error('Generation error:', error);
-        addLogItem(`生成失败: ${error.message}`, 'error');
+        if (error.name === 'AbortError') {
+            addLogItem('生成超时，请尝试减少页数后重试', 'error');
+        } else {
+            addLogItem(`生成失败: ${error.message}`, 'error');
+        }
     } finally {
+        clearTimeout(timeoutId);
         // 恢复按钮状态
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-magic me-2"></i>开始生成';
